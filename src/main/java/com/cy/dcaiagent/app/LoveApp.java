@@ -1,5 +1,6 @@
 package com.cy.dcaiagent.app;
 
+import com.cy.dcaiagent.advisor.MyLoggerAdvisor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -28,7 +29,11 @@ public class LoveApp {
         ChatMemory chatMemory = new InMemoryChatMemory();
         chatClient = ChatClient.builder(dashScopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
-                .defaultAdvisors(new MessageChatMemoryAdvisor(chatMemory))
+                .defaultAdvisors(
+                        new MessageChatMemoryAdvisor(chatMemory),
+                        // 自定义日志拦截器
+                        new MyLoggerAdvisor()
+                        )
                 .build();
 
     }
@@ -41,9 +46,7 @@ public class LoveApp {
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .call()
                 .chatResponse();
-        String content = response.getResult().getOutput().getText();
-        log.info("content: {}", content);
-        return content;
+        return response.getResult().getOutput().getText();
     }
 
 
