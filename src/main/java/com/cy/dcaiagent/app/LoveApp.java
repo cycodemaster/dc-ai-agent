@@ -2,6 +2,7 @@ package com.cy.dcaiagent.app;
 
 import com.cy.dcaiagent.advisor.MyLoggerAdvisor;
 import com.cy.dcaiagent.advisor.ReReadingAdvisor;
+import com.cy.dcaiagent.chatmemory.FileBasedChatMemory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -30,10 +31,13 @@ public class LoveApp {
     public LoveApp(ChatModel dashScopeChatModel) {
         //初始化基于内存的会话记忆
         ChatMemory chatMemory = new InMemoryChatMemory();
+        // 初始化基于文件的会话记忆
+        String fileDir = System.getProperty("user.dir") + "/chat-memory";
+        FileBasedChatMemory fileBasedChatMemory = new FileBasedChatMemory(fileDir);
         chatClient = ChatClient.builder(dashScopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
-                        new MessageChatMemoryAdvisor(chatMemory),
+                        new MessageChatMemoryAdvisor(fileBasedChatMemory),
                         // 自定义日志拦截器
                         new MyLoggerAdvisor()
                 )
